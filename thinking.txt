@@ -1,0 +1,13 @@
+
+let answers = Reviews.map(el => el.answers)
+answers.map(answer => answer[1]) // get each question number 2 which the index in arrray are 1
+answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ])
+answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ])
+
+/////////////////////////////////////////////////////////////////////////////////////
+arr[0].choices.map(el => el.text)
+
+arr[0].choices.filter(el => el.id === 4)
+arr[0].choices.filter(el => el.text === 'Good')
+arr[0].choices.filter(el => el.text !== 'Good')//isn't related but it mean the others not this object
+
