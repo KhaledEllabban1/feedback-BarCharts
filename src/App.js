@@ -7,39 +7,21 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
-// Calculate the average of Reviews feedback
-const getAverage = (question, answers) => {
-  let sum = 0;
-    for(let i =0; i < answers.length ; i++) {
-        if( question[0].choices.filter(el => el.text === "Good")[0].id === answers[i].choice ) {
-            //[id] 4: Good [weight = 1]
-            sum += 1
-        } else if (question[0].choices.filter(el => el.text === "Neutral")[0].id === answers[i].choice  ) {
-            //[id] 6: Neutral [weight = 0]
-            sum += 0
-        } else if (question[0].choices.filter(el => el.text === "Bad")[0].id === answers[i].choice  ) {
-            //[id] 1: Bad [weight = -1]
-            sum += -1
-        }
-    }
-    // console.log(sum);
-    let averagePoints = (sum / answers.length) * 100 + '%' ; 
-    console.log(averagePoints)
-}
-// converate the date from this form new Date('2019-08-18T21:11:54') to 2019-08-18
-const dateFormat = (date) => {
-  const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
-  const dateFormat = `${year}-${month + 1}-${day}`;
-  return dateFormat
-}
+import { getAverage, dateFormat, requestOptions } from './utils';
+import { differenceInDays  } from 'date-fns';
 
+
+//=========================================== date Picker ===========================================//
 const App = () => {
-  //=========================================== date Picker ===========================================//
-
   const [selectedDateOne, setSelectedDateOne] = useState(new Date('2019-08-18T21:11:54'));
-  const [selectedDateTwo, setSelectedDateTwo] = useState(new Date('2019-09-01T21:11:54'));
-  const [dateFrom, setDateFrom] = useState('2019-08-18');
-  const [dateTo, setDateTo] = useState('2019-9-01');
+  const [selectedDateTwo, setSelectedDateTwo] = useState(new Date('2019-10-01T21:11:54'));
+  const [dateFrom, setDateFrom] = useState("2019-08-18");
+  const [dateTo, setDateTo] = useState("2019-10-01");
+
+  
+  // const labelDiff = Utils_Date.diffInDays(dateFrom, dateTo)
+  // console.log('diff', labelDiff)
+
 
   const handleDateChange = (date) => {
     setSelectedDateOne(date);
@@ -54,29 +36,18 @@ const App = () => {
   };
   //=========================================== date Picker ===========================================//
 
-
   const [Reviews, setReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
   //=========================================== Requests ===========================================//
-  const token = `SLSmxK17vjRInEWIiFQjwE1QIDfeSM`;
-  var myHeaders = new Headers();
-  myHeaders.append('Content-type', "application/json");
-  myHeaders.append("Accept", "application/json");
-  myHeaders.append("Authorization", `Bearer ${token}`); 
-  var requestOptions = {
-    method: 'Get',
-    headers: myHeaders,
-    redirect:'follow'
-  };
-
   useEffect(() => {
     // GET Reviews
     fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
     .then(response => response.json())
     .then(
       data => {
+
+        setReviews(data.line_chart_data ? data.line_chart_data : []);
         console.log('Reviews :', data.line_chart_data);
-        setReviews(data.line_chart_data);
       }
     )
     .catch( error => console.log(error));
@@ -88,7 +59,7 @@ const App = () => {
       data => {
         // console.log('Questions(ar & en):', data);
         //choose english version from questions
-        const enQuestion = data.length ? data[data.findIndex(el => el.lang == "en")].questions : [] ;
+        const enQuestion = data.length ? data[data.findIndex(el => el.lang === "en")].questions : [] ;
         //  console.log('enQuestions:',Questions)
         setQuestions(enQuestion);
       }
@@ -97,37 +68,64 @@ const App = () => {
   
   }, [dateFrom,dateTo]);
 
-  //=========================================== start All Question and Answers Together ===========================================//
-
-  //  const questionTwoAndFour = [...questionTwoAnswers, ...questionFourAnswers];
-  // console.log("question2&4:" , questionTwoAndFour);
-
-   // Get Questions itself and the meaning of each choice id
-  //  const requestedQuestions = Questions.filter(question => question.id === 2 || question.id === 4  )
-  //  console.log('requestedQuestions:',requestedQuestions
-
-    //=========================================== end All Question and Answers Together ===========================================//
-
-   // Get Reviews(Answers) of Question 2 & 4 
-   const answers = Reviews.map(el=> el.answers);
-   const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
-   const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
-    // console.log("questionTwoAnswers", questionTwoAnswers);
+  
+  if( Questions.length > 0 && Reviews.length > 0) {
+    // Get Reviews(Answers) of Question 2 & 4 
+    const answers = Reviews.map(el=> el.answers);
+    const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
+    const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
+    console.log("questionTwoAnswers", questionTwoAnswers);
     // console.log("questionFourAnswers", questionFourAnswers);
 
-   // Get Questions objects
-
-   const questionTwoMeaning = Questions.filter(question => question.id === 2);
-   const questionFourMeaning = Questions.filter(question => question.id === 4);
-  //  console.log("questionTwo", questionTwoMeaning)
-  //  console.log("questionfour", questionFourMeaning)
-  
-   // Fun to CalCulate the Average
-   
-   if(Questions.length > 0 && Reviews.length > 0) {
-     getAverage(questionTwoMeaning, questionTwoAnswers);
-     getAverage(questionFourMeaning, questionFourAnswers);
+    // Get Questions objects
+    const questionTwoMeaning = Questions.filter(question => question.id === 2);
+    const questionFourMeaning = Questions.filter(question => question.id === 4);
+    console.log("questionTwo", questionTwoMeaning)
+    // console.log("questionfour", questionFourMeaning)
+    
+    // Fun to CalCulate the Average
+    getAverage(questionTwoMeaning, questionTwoAnswers);
+    getAverage(questionFourMeaning, questionFourAnswers);
    }
+   
+     //=========================================== fun Date  ===========================================//
+   
+   const dateOfReview = Reviews.map(el=> el.submitted_at);
+   console.log("dateOfReview:",dateOfReview)
+   const submitDateFormat =  dateOfReview.map(el => {
+      const date = new Date(el);
+      const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
+      const submitDate = `${year}-${month + 1}-${day}`;
+      return submitDate
+    });
+    console.log("submitDateFormat:",submitDateFormat)
+  
+
+  Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  }
+
+  function getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+      const [month, day, year] = [currentDate.getMonth(), currentDate.getDate(), currentDate.getFullYear()];
+      const date = `${year}-${month + 1}-${day}`;
+        dateArray.push(date);
+        // dateArray.push(format(new Date (currentDate), 'yyyy-mm-dd'));
+        currentDate = currentDate.addDays(1);
+    }
+    console.log("DurationOfDate:",dateArray)
+    return dateArray;
+}
+getDates(selectedDateOne,selectedDateTwo);
+
+// const diffInDays = Math.abs(differenceInDays(selectedDateTwo,selectedDateOne));
+const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
+console.log("diffInDays:",diffInDays);
+
   
     return (
       <div className="App">
