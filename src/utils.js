@@ -30,7 +30,8 @@ export const getAverage = (question, answers) => {
       }
       // console.log(sum);
       let averagePoints = (sum / answers.length) * 100 + '%' ; 
-      console.log(averagePoints)
+    //   console.log(averagePoints)
+      return averagePoints;
 }
 //=========================================== getAverage Function ===========================================//
 
@@ -56,3 +57,14 @@ export  const dateFormat = (date) => {
 //  console.log('requestedQuestions:',requestedQuestions)
 
 //=========================================== end All Question and Answers Together ===========================================//
+
+export const arraySplit = (array, chunk = 12) => {
+    let arr = []
+    var i,j, temporary;
+    for (i = 0,j = array.length; i < j; i += chunk) {
+        temporary = array.slice(i, i + chunk);
+        arr.push(temporary)
+    }
+    console.log(arr)
+    return arr
+}

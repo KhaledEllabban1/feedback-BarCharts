@@ -7,8 +7,8 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
-import { getAverage, dateFormat, requestOptions } from './utils';
-import { differenceInDays  } from 'date-fns';
+import { getAverage, dateFormat, requestOptions, arraySplit } from './utils';
+import { differenceInDays, format  } from 'date-fns';
 
 
 //=========================================== start date Picker ===========================================//
@@ -96,7 +96,12 @@ const App = () => {
       }
     }
     questionTwoAnswersWithTime();
-    // console.log("questionTwoAnswers", questionTwoAnswers);
+    const newAnsTwo = arraySplit(questionTwoAnswers.reverse(), (Math.round(questionTwoAnswers.length / 6)));
+    console.log("newAnsTwo", newAnsTwo)
+    // const start = questionTwoAnswers[0]
+    // console.log(start);
+    console.log("questionTwoAnswers", questionTwoAnswers);
+    
 
     const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
     const questionFourAnswersWithTime = () => {     
@@ -116,8 +121,26 @@ const App = () => {
     // console.log("questionfour", questionFourMeaning)
     
     //  ================================ start Fun to CalCulate the Average ================================//
-    getAverage(questionTwoMeaning, questionTwoAnswers);
-    getAverage(questionFourMeaning, questionFourAnswers);
+    getAverage(questionTwoMeaning, newAnsTwo[0] );
+    // getAverage(questionFourMeaning, questionFourAnswers);
+
+    const averageArrayOfTwo = () => {
+      let average = [];
+      let averageDate = []
+      for (let i = 0; i < newAnsTwo.length ; i++ ) {
+        let ave = getAverage(questionTwoMeaning, newAnsTwo[i]);
+        let startDate = dateFormat(new Date(`${newAnsTwo[i][0].time}`));
+        // console.log("startDate:",startDate )
+        averageDate.push(startDate)
+        // let endDate = dateFormat(new Date(`${newAnsTwo[i][newAnsTwo[i].length - 1].time}`));
+        // console.log("endDate:", endDate)
+        average.push(ave)
+      }
+      console.log(average)
+      console.log(averageDate)
+      return [average, averageDate]
+   }
+    averageArrayOfTwo()
     //  ================================ end Fun to CalCulate the Average ================================//
 
   }
@@ -151,7 +174,8 @@ const App = () => {
         // dateArray.push(format(new Date (currentDate), 'yyyy-mm-dd'));
         currentDate = currentDate.addDays(1);
     }
-    // console.log("DurationOfDate:",dateArray)
+    // console.log("DurationOfDate:",dateArray);
+    // arraySplit(dateArray)
     return dateArray;
 }
 getDates(selectedDateOne,selectedDateTwo);
