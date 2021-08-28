@@ -23,24 +23,53 @@ const App = () => {
     const dateFormatOne = dateFormat(date)
     setDateFrom(dateFormatOne);
     // console.log("dateFormatOne", dateFormatOne);
-    certainAverageOfTime();
   };
   const handleDateChangeTwo = (date) => {
     setSelectedDateTwo(date);
     setDateTo(dateFormat(date));
     // console.log("dateFormatTwo", dateFormatTwo);
-    certainAverageOfTime();
   };
   //=========================================== end date Picker ===========================================//
 
   const [Reviews, setReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
   const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([]);
-  const [datesOfStartPoints, setDatesOfStartPoints] = useState([])
-  //===========================================**************************** start Requests ************************ ===========================================//
+  //=========================================== start Requests ===========================================//
   useEffect(() => {
+    // GET Reviews
+    fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
+    .then(response => response.json())
+    .then(
+      data => {
 
-    // ******************************************************* GET Questions *****************************//
+        setReviews(data.line_chart_data ? data.line_chart_data : []);
+        // console.log('Reviews :', data.line_chart_data);
+      }
+    )
+    .catch( error => console.log(error));
+    // ******************************************************* Start Solution one of Getting Average to each certain amount of time *****************************//
+
+    const duration = getDates(selectedDateOne,selectedDateTwo);
+    console.log("duration:", duration)
+
+    for (let i = 0; i < 6 ; i++) {
+      let datesFrom = duration[i][0]
+      let datesTo   = duration[i][duration[i].length - 1]
+     
+    fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${datesFrom}&date_to=${datesTo}`, requestOptions)
+    .then(response => response.json())
+    .then(
+      data => {
+        console.log("result number: ",i)
+        setReviews(data.line_chart_data ? data.line_chart_data : []);
+        console.log('Reviews :', data.line_chart_data);
+      }
+    )
+    .catch( error => console.log(error));
+    }
+    // ******************************************************* End Solution one of Getting Average to each certain amount of time *****************************//
+    
+    // GET Questions
     fetch('https://staging.mymelior.com/v1/questions', requestOptions)
     .then(response => response.json())
     .then(
@@ -53,117 +82,53 @@ const App = () => {
       }
     )
     .catch( error => console.log(error));
-    // ******************************************************* GET Questions *****************************//
-
-    // ******************************************************* GET Reviews *****************************//
-    // GET Reviews
-    fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
-    .then(response => response.json())
-    .then(
-      data => {
-
-        setReviews(data.line_chart_data ? data.line_chart_data : []);
-        // console.log('Reviews :', data.line_chart_data);
-      }
-    )
-    .catch( error => console.log(error));
-    // ******************************************************* GET Reviews *****************************//
-
-
-
-  }, [dateFrom,dateTo]);
-
-  //===========================================**************************** end Requests ************************ ===========================================//
-
-
-  // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
   
-  const certainAverageOfTime = () => {
-
-    const duration = getDates(selectedDateOne,selectedDateTwo);
-    console.log("duration:", duration)
-
-    let average = [];
-    let startDates = [];
-    for (let i = 0; i < 6 ; i++) {
-      let datesFrom = duration[i][0]
-      let datesTo   = duration[i][duration[i].length - 1]
-      // console.log(datesFrom);console.log(datesTo)
-    fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${datesFrom}&date_to=${datesTo}`, requestOptions)
-    .then(response => response.json())
-    .then(
-      data => {
-        // console.log("result number: ", i)
-        const Reviews = data.line_chart_data ? data.line_chart_data : [] ;
-        const answers = Reviews.map(el=> el.answers);
-        const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
-        const questionTwoMeaning =  Questions.filter(question => question.id === 2);
-        let ave = getAverage(questionTwoMeaning, questionTwoAnswers );
-        // average.push([i, ave]);
-        average.push({order : i, average: ave});
-        startDates.push({order : i, datesFrom: datesFrom});
-        }
-      )
-      .catch( error => console.log(error));
-    }
-
-    setQuestionTwoAverage(average);
-    setDatesOfStartPoints(startDates);
-  }
-  console.log("QuestionTwoAverage", QuestionTwoAverage)
-  console.log("DatesOfStartPoints", datesOfStartPoints)
-
-  // ******************************************************* End Solution one of Getting Average to each certain amount of time *****************************//
+  }, [dateFrom,dateTo]);
+  //=========================================== end Requests ===========================================//
 
   //  ================================ start Get Reviews(Answers) of Question 2 & 4 ================================//
-  
+  const dateOfReview = Reviews.map(el=> el.submitted_at);
   if( Questions.length > 0 && Reviews.length > 0) {
     const answers = Reviews.map(el=> el.answers);
-    const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
-    console.log("questionTwoAnswers", questionTwoAnswers);
-    const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
-    // console.log("questionFourAnswers", questionFourAnswers);
     
-     const dateOfReview = Reviews.map(el=> el.submitted_at);
-     const questionTwoAnswersWithTime = () => {     
-        for(let i=0; i < answers.length; i++){
-              questionTwoAnswers[i].time = dateOfReview[i]
-        }
+    const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
+    const dateOfReview = Reviews.map(el=> el.submitted_at);
+    const questionTwoAnswersWithTime = () => {     
+      for(let i=0; i < answers.length; i++){
+            questionTwoAnswers[i].time = dateOfReview[i]
       }
-      questionTwoAnswersWithTime();
+    }
+    questionTwoAnswersWithTime();
+   
+    console.log("questionTwoAnswers", questionTwoAnswers);
+    
+
+    const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
+    const questionFourAnswersWithTime = () => {     
+      for(let i=0; i < answers.length; i++){
+        questionFourAnswers[i].time = dateOfReview[i]
+      }
+    }
+    questionFourAnswersWithTime();
+    // console.log("questionFourAnswers", questionFourAnswers);
 
     //  ================================ end Get Reviews(Answers) of Question 2 & 4 ================================//
 
     // Get Questions objects
     const questionTwoMeaning = Questions.filter(question => question.id === 2);
     const questionFourMeaning = Questions.filter(question => question.id === 4);
-    // console.log("questionTwoMeaning", questionTwoMeaning)
-    // console.log("questionFourMeaning", questionFourMeaning)
+    // console.log("questionTwo", questionTwoMeaning)
+    // console.log("questionfour", questionFourMeaning)
     
     //  ================================ start Fun to CalCulate the Average ================================//
 
-    const aveTwo = getAverage(questionTwoMeaning, questionTwoAnswers );
-    console.log("aveTwo", aveTwo)
-    getAverage(questionFourMeaning, questionFourAnswers);
+     getAverage(questionTwoMeaning, questionTwoAnswers );
+    // getAverage(questionFourMeaning, questionFourAnswers);
     
     //  ================================ end Fun to CalCulate the Average ================================//
     
 // ******************************************************* Start Solution Two of Getting Average to each certain amount of time *****************************//  
-  // after questionTwoAnswers => place
-  // const questionTwoAnswersWithTime = () => {     
-  //   for(let i=0; i < answers.length; i++){
-  //         questionTwoAnswers[i].time = dateOfReview[i]
-  //   }
-  // }
-  // questionTwoAnswersWithTime();
-  // const questionFourAnswersWithTime = () => {     
-  //   for(let i=0; i < answers.length; i++){
-  //     questionFourAnswers[i].time = dateOfReview[i]
-  //   }
-  // }
-  // questionFourAnswersWithTime();
-  // // console.log("questionFourAnswers", questionFourAnswers);
-  // const dateOfReview = Reviews.map(el=> el.submitted_at);
+
   //   const newAnsTwo = arraySplit(questionTwoAnswers.reverse(), (Math.round(questionTwoAnswers.length / 6)));
   //   const avTwo = getAverage(questionTwoMeaning, questionTwoAnswers );
   //   console.log("avTwo:", avTwo)
@@ -194,27 +159,20 @@ const App = () => {
      //=========================================== start fun Date  ===========================================//
    
   
-    //   const dateOfReview = Reviews.map(el=> el.submitted_at);
-    //   console.log("dateOfReview:",dateOfReview)
-    //  const questionTwoAnswersWithTime = () => {     
-    //     for(let i=0; i < answers.length; i++){
-    //           questionTwoAnswers[i].time = dateOfReview[i]
-    //     }
-    //   }
-    //   questionTwoAnswersWithTime();
-  //  const submitDateFormat =  dateOfReview.map(el => {
-  //     const date = new Date(el);
-  //     const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
-  //     const submitDate = `${year}-${month + 1}-${day}`;
-  //     return submitDate
-  //   });
-  // console.log("submitDateFormat:",submitDateFormat)
+  //  console.log("dateOfReview:",dateOfReview)
+   const submitDateFormat =  dateOfReview.map(el => {
+      const date = new Date(el);
+      const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
+      const submitDate = `${year}-${month + 1}-${day}`;
+      return submitDate
+    });
+    // console.log("submitDateFormat:",submitDateFormat)
   
 
 
 
 // const diffInDays = Math.abs(differenceInDays(selectedDateTwo,selectedDateOne));
-const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
+// const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
 // console.log("diffInDays:",diffInDays);
 
 //=========================================== end fun Date  ===========================================//

@@ -58,6 +58,9 @@ export  const dateFormat = (date) => {
 
 //=========================================== end All Question and Answers Together ===========================================//
 
+
+//=========================================== arraySplit Fun  ===========================================//
+
 export const arraySplit = (array, chunk = 12) => {
     let arr = []
     var i,j, temporary;
@@ -65,6 +68,33 @@ export const arraySplit = (array, chunk = 12) => {
         temporary = array.slice(i, i + chunk);
         arr.push(temporary)
     }
-    console.log(arr)
+    // console.log(arr)
     return arr
 }
+
+
+//=========================================== arraySplit Fun  ===========================================//
+
+
+//=========================================== getDates Fun  ===========================================//
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  }
+
+export function getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+      const [month, day, year] = [currentDate.getMonth(), currentDate.getDate(), currentDate.getFullYear()];
+      const date = `${year}-${month + 1}-${day}`;
+        dateArray.push(date);
+        currentDate = currentDate.addDays(1);
+    }
+    const reqDate = arraySplit(dateArray, (Math.round(dateArray.length / 6)))
+    return reqDate;
+}
+
+//=========================================== getDates Fun  ===========================================//
