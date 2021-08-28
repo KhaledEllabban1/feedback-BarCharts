@@ -30,7 +30,7 @@ export const getAverage = (question, answers) => {
       }
       // console.log(sum);
       let averagePoints = (sum / answers.length) * 100 + '%' ; 
-    //   console.log(averagePoints)
+      console.log(averagePoints)
       return averagePoints;
 }
 //=========================================== getAverage Function ===========================================//

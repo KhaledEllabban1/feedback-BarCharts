@@ -13,7 +13,7 @@ import { differenceInDays, format  } from 'date-fns';
 
 //=========================================== start date Picker ===========================================//
 const App = () => {
-  const [selectedDateOne, setSelectedDateOne] = useState(new Date('2019-08-18T21:11:54'));
+  const [selectedDateOne, setSelectedDateOne] = useState(new Date('2019-08-01T21:11:54'));
   const [selectedDateTwo, setSelectedDateTwo] = useState(new Date('2019-09-01T21:11:54'));
   const [dateFrom, setDateFrom] = useState(dateFormat(selectedDateOne));
   const [dateTo, setDateTo] = useState(dateFormat(selectedDateTwo));
@@ -42,7 +42,7 @@ const App = () => {
       data => {
 
         setReviews(data.line_chart_data ? data.line_chart_data : []);
-        // console.log('Reviews :', data.line_chart_data);
+        console.log('Reviews :', data.line_chart_data);
       }
     )
     .catch( error => console.log(error));
@@ -97,7 +97,7 @@ const App = () => {
     }
     questionTwoAnswersWithTime();
     const newAnsTwo = arraySplit(questionTwoAnswers.reverse(), (Math.round(questionTwoAnswers.length / 6)));
-    console.log("newAnsTwo", newAnsTwo)
+    // console.log("newAnsTwo", newAnsTwo)
     // const start = questionTwoAnswers[0]
     // console.log(start);
     console.log("questionTwoAnswers", questionTwoAnswers);
@@ -121,7 +121,8 @@ const App = () => {
     // console.log("questionfour", questionFourMeaning)
     
     //  ================================ start Fun to CalCulate the Average ================================//
-    getAverage(questionTwoMeaning, newAnsTwo[0] );
+    const avTwo = getAverage(questionTwoMeaning, questionTwoAnswers );
+    console.log("avTwo:", avTwo)
     // getAverage(questionFourMeaning, questionFourAnswers);
 
     const averageArrayOfTwo = () => {
@@ -129,18 +130,21 @@ const App = () => {
       let averageDate = []
       for (let i = 0; i < newAnsTwo.length ; i++ ) {
         let ave = getAverage(questionTwoMeaning, newAnsTwo[i]);
+
         let startDate = dateFormat(new Date(`${newAnsTwo[i][0].time}`));
-        // console.log("startDate:",startDate )
-        averageDate.push(startDate)
-        // let endDate = dateFormat(new Date(`${newAnsTwo[i][newAnsTwo[i].length - 1].time}`));
+        let endDate = dateFormat(new Date(`${newAnsTwo[i][newAnsTwo[i].length - 1].time}`));
         // console.log("endDate:", endDate)
+        // console.log("startDate:", startDate)
         average.push(ave)
+        averageDate.push([startDate , endDate])
+        // averageDate.push(endDate) 
       }
       console.log(average)
-      console.log(averageDate)
+      console.log("averageDate => that has startDate and EndDate of the average :", averageDate)
       return [average, averageDate]
    }
-    averageArrayOfTwo()
+    averageArrayOfTwo()    
+    
     //  ================================ end Fun to CalCulate the Average ================================//
 
   }
@@ -174,11 +178,13 @@ const App = () => {
         // dateArray.push(format(new Date (currentDate), 'yyyy-mm-dd'));
         currentDate = currentDate.addDays(1);
     }
+    const reqDate = arraySplit(dateArray, (Math.round(dateArray.length / 6)))
+    // console.log("reqDate:",reqDate);
     // console.log("DurationOfDate:",dateArray);
     // arraySplit(dateArray)
     return dateArray;
 }
-getDates(selectedDateOne,selectedDateTwo);
+// getDates(selectedDateOne,selectedDateTwo);
 
 // const diffInDays = Math.abs(differenceInDays(selectedDateTwo,selectedDateOne));
 const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
