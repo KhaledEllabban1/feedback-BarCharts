@@ -30,7 +30,7 @@ export const getAverage = (question, answers) => {
       }
       // console.log(sum);
       let averagePoints = (sum / answers.length) * 100 + '%' ; 
-      console.log(averagePoints)
+    //   console.log(averagePoints)
       return averagePoints;
 }
 //=========================================== getAverage Function ===========================================//
@@ -98,3 +98,75 @@ export function getDates(startDate, stopDate) {
 }
 
 //=========================================== getDates Fun  ===========================================//
+
+  // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
+//   export const certainAverageOfTime = (questionString, questionNumber, startDate, endDate, QuestionArray) => {
+//      const duration = getDates(startDate , endDate);
+//      console.log("duration:", duration)
+//     let average = [];
+//     let startDates = [];
+//     for (let i = 0; i < 6 ; i++) {
+//       let datesFrom = duration[i][0]
+//       let datesTo   = duration[i][duration[i].length - 1]
+//       // console.log(datesFrom);console.log(datesTo)
+//     fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${datesFrom}&date_to=${datesTo}`, requestOptions)
+//     .then(response => response.json())
+//     .then(
+//       data => {
+//         // console.log("result number: ", i)
+//         const Reviews = data.line_chart_data ? data.line_chart_data : [] ;
+//         const answers = Reviews.map(el=> el.answers);
+//         const questionAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === questionNumber) ]);
+//         console.log("question", questionAnswers)
+//         const questionMeaning =  QuestionArray.filter(question => question.id === questionNumber);
+//         let ave = getAverage(questionMeaning, questionAnswers );
+//         // average.push([i, ave]);
+//         average.push({order : i, average: ave});
+//         startDates.push({order : i, datesFrom: datesFrom});
+//         }
+//       )
+//       .catch( error => console.log(error));
+//     }
+// 
+//     // this state isn't defined
+//     eval(`setQuestion${questionString}Average`)(average) ;
+//     eval(`setDatesQuestion${questionString}`)(startDates);
+//   }
+
+
+// ******************************************************* End Solution one of Getting Average to each certain amount of time of Question two *****************************//
+// const duration = getDates(selectedDateOne,selectedDateTwo);
+// console.log("duration:", duration)
+
+// const certainAverageOfTime = () => {
+//     let average = [];
+//   let startDates = [];
+//   for (let i = 0; i < 6 ; i++) {
+//       let datesFrom = duration[i][0]
+//       let datesTo   = duration[i][duration[i].length - 1]
+//       // console.log(datesFrom);console.log(datesTo)
+//       fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${datesFrom}&date_to=${datesTo}`, requestOptions)
+//       .then(response => response.json())
+//       .then(
+//           data => {
+//               // console.log("result number: ", i)
+//               const Reviews = data.line_chart_data ? data.line_chart_data : [] ;
+//               const answers = Reviews.map(el=> el.answers);
+//               const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
+//               const questionTwoMeaning =  Questions.filter(question => question.id === 2);
+//               let ave = getAverage(questionTwoMeaning, questionTwoAnswers );
+//               // average.push([i, ave]);
+//               average.push({order : i, average: ave});
+//               startDates.push({order : i, datesFrom: datesFrom});
+//             }
+//             )
+//             .catch( error => console.log(error));
+//         }
+        
+//         setQuestionTwoAverage(average);
+//         setDatesQuestionTwo(startDates);
+//     }
+//     console.log("QuestionTwoAverage", QuestionTwoAverage)
+//     console.log("DatesQuestionTwo", DatesQuestionTwo)
+// ******************************************************* End Solution one of Getting Average to each certain amount of time of Question two *****************************//
+
