@@ -21,7 +21,7 @@ const BarChart = ({QuestionTwo, QuestionFour, Dates}) => {
               label: 'QuestionFour',
               data: QuestionFour,
               backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'red',
+              borderColor: 'rgba(54, 162, 235, 1)',
             },
           ],
         }}

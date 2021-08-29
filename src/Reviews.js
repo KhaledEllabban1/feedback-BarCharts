@@ -1,4 +1,4 @@
-[
+export const ReviewsTest =[
     {
         "submitted_at": "2020-01-21T12:33:12+02:00",
         "answers": [

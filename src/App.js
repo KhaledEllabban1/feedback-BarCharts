@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useLayoutEffect } from 'react';
 import 'date-fns';
 import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
@@ -9,9 +9,27 @@ import {
 } from '@material-ui/pickers';
 import { getAverage, dateFormat, requestOptions, arraySplit, getDates } from './utils';
 import BarChart from './components/bar-chart/bar-chart.component';
+import { QuestionTest } from './question';
+import { ReviewsTest } from './Reviews';
+import { size } from 'lodash';
+
+function useWindowSize() {
+  const [size, setSize] = useState(0);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize(window.innerWidth);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  console.log("sizssssssssssssssssssse", size)
+    return size
+}
+
 
 //=========================================== start date Picker ===========================================//
-const App = () => {
+const App = (props) => {
   const [selectedDateOne, setSelectedDateOne] = useState(new Date('2019-08-01T21:11:54'));
   const [selectedDateTwo, setSelectedDateTwo] = useState(new Date('2019-09-01T21:11:54'));
   const [dateFrom, setDateFrom] = useState(dateFormat(selectedDateOne));
@@ -33,12 +51,25 @@ const App = () => {
     certainAverageOfTime("Four", 4);
   };
   //=========================================== end date Picker ===========================================//
+  const width = useWindowSize();
+
+  let value;
+  if ( width < 768 ) {
+      value = 4 
+  } else if (width < 1400) {
+      value = 6
+  } else if ( 1401 < width ) {
+    value = 10
+  } else {
+    value = 0
+  }
+  console.log(value)
 
   const [Reviews, setReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
-  const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([1,2]);
-  const [QuestionFourAverage, setQuestionFourAverage] = useState([1,2]);
-  const [DatesQuestion, setDatesQuestion] = useState([1,2]);
+  const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([]);
+  const [QuestionFourAverage, setQuestionFourAverage] = useState([]);
+  const [DatesQuestion, setDatesQuestion] = useState([]);
 
 
   //===========================================**************************** start Requests ************************ ===========================================//
@@ -53,7 +84,8 @@ const App = () => {
         //choose english version from questions
         const enQuestion = data.length ? data[data.findIndex(el => el.lang === "en")].questions : [] ;
         //  console.log('enQuestions:',Questions)
-        setQuestions(enQuestion);
+        // setQuestions(enQuestion);
+        setQuestions(QuestionTest[0].questions);
       }
     )
     .catch( error => console.log(error));
@@ -79,12 +111,17 @@ const App = () => {
 
   
   // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
-  const duration = getDates(selectedDateOne,selectedDateTwo);
+  // const howManyValues = () => {
+    
+  // }
+  // howManyValues()
+
+  const duration = getDates(selectedDateOne,selectedDateTwo, value);
   console.log("duration:", duration)
   const certainAverageOfTime = (questionString, questionNumber) => {
     let average = [];
     let startDates = [];
-    for (let i = 0; i < 6 ; i++) {
+    for (let i = 0; i < value ; i++) {
       let datesFrom = duration[i][0]
       let datesTo   = duration[i][duration[i].length - 1]
       // console.log(datesFrom);console.log(datesTo)
@@ -93,14 +130,13 @@ const App = () => {
     .then(
       data => {
         // console.log("result number: ", i)
-        const Reviews = data.line_chart_data ? data.line_chart_data : [] ;
+        // const Reviews = data.line_chart_data ? data.line_chart_data : [] ; 
+        const Reviews = ReviewsTest;
         const answers = Reviews.map(el=> el.answers);
         const questionAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === questionNumber) ]);
         // console.log("question", questionAnswers)
         const questionMeaning =  Questions.filter(question => question.id === questionNumber);
         let ave = getAverage(questionMeaning, questionAnswers );
-        if(ave ===  "NaN%") ave = 50 ;
-        // average.push([i, ave]);
         average.push({order : i, average: ave});
         startDates.push({order : i, datesFrom: datesFrom});
         }
@@ -125,16 +161,7 @@ const App = () => {
     return a.order - b.order 
   }).map(el => el.datesFrom)
   console.log("DatesQuestionArr", DatesQuestionArr)
-  
-  // QuestionTwoAverage.sort(function(a, b) { 
-  //   return a.order - b.order 
-  // })
-  // QuestionFourAverage.sort(function(a, b) { 
-  //   return a.order - b.order 
-  // });
-  // DatesQuestion.sort(function(a, b) { 
-  //   return a.order - b.order 
-  // });
+
 
   console.log("QuestionTwoAverage", QuestionTwoAverage)
   console.log("QuestionFourAverage", QuestionFourAverage)
@@ -186,9 +213,9 @@ const App = () => {
     //  ================================ end Fun to CalCulate the Average ================================//
   }
     
-  
     return (
       <div className="App">
+          <span>Window size: {width} </span>;
          <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid container justifyContent="space-around">
               <KeyboardDatePicker
