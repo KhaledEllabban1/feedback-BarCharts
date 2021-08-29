@@ -102,7 +102,6 @@ const App = () => {
     )
     .catch( error => console.log(error));
     // ******************************************************* end GET Reviews *****************************//
-
   }, [dateFrom,dateTo]);
 
   //===========================================**************************** end Requests ************************ ===========================================//
@@ -111,12 +110,12 @@ const App = () => {
   
   // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
 
-  const duration = getDates(selectedDateOne,selectedDateTwo, value);
   // console.log("duration:", duration)
-  const certainAverageOfTime = (questionString, questionNumber) => {
+  const certainAverageOfTime = (questionString = "two", questionNumber = 2) => {
     let average = [];
     let startDates = [];
     for (let i = 0; i < value ; i++) {
+      const duration = getDates(selectedDateOne,selectedDateTwo, value);
       let datesFrom = duration[i][0]
       let datesTo   = duration[i][duration[i].length - 1]
       // console.log(datesFrom);console.log(datesTo)
@@ -140,6 +139,7 @@ const App = () => {
     eval(`setQuestion${questionString}Average`)(average) ;
     setDatesQuestion(startDates);
   }
+  
   
   //                       arrays To Bar Chart                                //
   const QuestionTwoAverageArr = QuestionTwoAverage.sort(function(a, b) { 
