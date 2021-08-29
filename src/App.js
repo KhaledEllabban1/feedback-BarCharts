@@ -8,8 +8,7 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import { getAverage, dateFormat, requestOptions, arraySplit, getDates } from './utils';
-import { differenceInDays, format  } from 'date-fns';
-
+import BarChart from './components/bar-chart/bar-chart.component';
 
 //=========================================== start date Picker ===========================================//
 const App = () => {
@@ -37,9 +36,9 @@ const App = () => {
 
   const [Reviews, setReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
-  const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([]);
-  const [QuestionFourAverage, setQuestionFourAverage] = useState([]);
-  const [DatesQuestion, setDatesQuestion] = useState([]);
+  const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([1,2]);
+  const [QuestionFourAverage, setQuestionFourAverage] = useState([1,2]);
+  const [DatesQuestion, setDatesQuestion] = useState([1,2]);
 
 
   //===========================================**************************** start Requests ************************ ===========================================//
@@ -61,7 +60,6 @@ const App = () => {
     // ******************************************************* GET Questions *****************************//
 
     // ******************************************************* GET Reviews *****************************//
-    // GET Reviews
     fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
     .then(response => response.json())
     .then(
@@ -73,8 +71,6 @@ const App = () => {
     )
     .catch( error => console.log(error));
     // ******************************************************* GET Reviews *****************************//
-
-
 
   }, [dateFrom,dateTo]);
 
@@ -103,6 +99,7 @@ const App = () => {
         // console.log("question", questionAnswers)
         const questionMeaning =  Questions.filter(question => question.id === questionNumber);
         let ave = getAverage(questionMeaning, questionAnswers );
+        if(ave ===  "NaN%") ave = 50 ;
         // average.push([i, ave]);
         average.push({order : i, average: ave});
         startDates.push({order : i, datesFrom: datesFrom});
@@ -113,13 +110,39 @@ const App = () => {
     eval(`setQuestion${questionString}Average`)(average) ;
     setDatesQuestion(startDates);
   }
+  
+  const QuestionTwoAverageArr = QuestionTwoAverage.sort(function(a, b) { 
+    return a.order - b.order 
+  }).map(el => el.average)
+  console.log("QuestionTwoAverageArr", QuestionTwoAverageArr)
+  
+  const QuestionFourAverageArr = QuestionFourAverage.sort(function(a, b) { 
+    return a.order - b.order 
+  }).map(el => el.average)
+  console.log("QuestionFourAverageArr", QuestionFourAverageArr)
+  
+  const DatesQuestionArr = DatesQuestion.sort(function(a, b) { 
+    return a.order - b.order 
+  }).map(el => el.datesFrom)
+  console.log("DatesQuestionArr", DatesQuestionArr)
+  
+  // QuestionTwoAverage.sort(function(a, b) { 
+  //   return a.order - b.order 
+  // })
+  // QuestionFourAverage.sort(function(a, b) { 
+  //   return a.order - b.order 
+  // });
+  // DatesQuestion.sort(function(a, b) { 
+  //   return a.order - b.order 
+  // });
+
   console.log("QuestionTwoAverage", QuestionTwoAverage)
   console.log("QuestionFourAverage", QuestionFourAverage)
   console.log("DatesQuestion", DatesQuestion)
 
   // ******************************************************* End Solution one of Getting Average to each certain amount of time *****************************//
 
-  //  ================================ start Get Reviews(Answers) of Question 2 & 4 ================================//
+  //  ================================ start Get Reviews(Answers) of Question 2 & 4 (Total Average through the Duration) ================================//
   
   if( Questions.length > 0 && Reviews.length > 0) {
     const answers = Reviews.map(el=> el.answers);
@@ -144,7 +167,7 @@ const App = () => {
       }
       questionFourAnswersWithTime();
 
-    //  ================================ end Get Reviews(Answers) of Question 2 & 4 ================================//
+    //  ================================ end Get Reviews(Answers) of Question 2 & 4 (Total Average through the Duration) ================================//
 
     // Get Questions objects
     const questionTwoMeaning = Questions.filter(question => question.id === 2);
@@ -161,77 +184,8 @@ const App = () => {
     
     
     //  ================================ end Fun to CalCulate the Average ================================//
-    
-// ******************************************************* Start Solution Two of Getting Average to each certain amount of time *****************************//  
-  // after questionTwoAnswers => place
-  // const questionTwoAnswersWithTime = () => {     
-  //   for(let i=0; i < answers.length; i++){
-  //         questionTwoAnswers[i].time = dateOfReview[i]
-  //   }
-  // }
-  // questionTwoAnswersWithTime();
-  // const questionFourAnswersWithTime = () => {     
-  //   for(let i=0; i < answers.length; i++){
-  //     questionFourAnswers[i].time = dateOfReview[i]
-  //   }
-  // }
-  // questionFourAnswersWithTime();
-  // // console.log("questionFourAnswers", questionFourAnswers);
-  // const dateOfReview = Reviews.map(el=> el.submitted_at);
-  //   const newAnsTwo = arraySplit(questionTwoAnswers.reverse(), (Math.round(questionTwoAnswers.length / 6)));
-  //   const avTwo = getAverage(questionTwoMeaning, questionTwoAnswers );
-  //   console.log("avTwo:", avTwo)
-  //   const averageArrayOfTwo = () => {
-  //     let average = [];
-  //     let averageDate = []
-  //     for (let i = 0; i < newAnsTwo.length ; i++ ) {
-  //       let ave = getAverage(questionTwoMeaning, newAnsTwo[i]);
-
-  //       let startDate = dateFormat(new Date(`${newAnsTwo[i][0].time}`));
-  //       let endDate = dateFormat(new Date(`${newAnsTwo[i][newAnsTwo[i].length - 1].time}`));
-  //       // console.log("endDate:", endDate)
-  //       // console.log("startDate:", startDate)
-  //       average.push(ave)
-  //       averageDate.push([startDate , endDate])
-  //       // averageDate.push(endDate) 
-  //     }
-  //     console.log(average)
-  //     console.log("averageDate => that has startDate and EndDate of the average :", averageDate)
-  //     return [average, averageDate]
-  //  }
-  //   averageArrayOfTwo()   
-// ******************************************************* end Solution Two of Getting Average to each certain amount of time *****************************// 
-    
-
   }
-   
-     //=========================================== start fun Date  ===========================================//
-   
-  
-    //   const dateOfReview = Reviews.map(el=> el.submitted_at);
-    //   console.log("dateOfReview:",dateOfReview)
-    //  const questionTwoAnswersWithTime = () => {     
-    //     for(let i=0; i < answers.length; i++){
-    //           questionTwoAnswers[i].time = dateOfReview[i]
-    //     }
-    //   }
-    //   questionTwoAnswersWithTime();
-  //  const submitDateFormat =  dateOfReview.map(el => {
-  //     const date = new Date(el);
-  //     const [month, day, year] = [date.getMonth(), date.getDate(), date.getFullYear()];
-  //     const submitDate = `${year}-${month + 1}-${day}`;
-  //     return submitDate
-  //   });
-  // console.log("submitDateFormat:",submitDateFormat)
-  
-
-
-
-// const diffInDays = Math.abs(differenceInDays(selectedDateTwo,selectedDateOne));
-const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
-// console.log("diffInDays:",diffInDays);
-
-//=========================================== end fun Date  ===========================================//
+    
   
     return (
       <div className="App">
@@ -264,6 +218,9 @@ const diffInDays = getDates(selectedDateOne,selectedDateTwo).length;
                 }}
               />
               
+            </Grid>
+            <Grid>
+              <BarChart QuestionTwo = {QuestionTwoAverageArr} QuestionFour = {QuestionFourAverageArr} Dates = {DatesQuestionArr}  />
             </Grid>
           </MuiPickersUtilsProvider>
       </div>
