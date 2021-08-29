@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/feedback-BarCharts/static/css/main.2d13fed8.chunk.css",
+    "main.js": "/feedback-BarCharts/static/js/main.7f6354af.chunk.js",
+    "main.js.map": "/feedback-BarCharts/static/js/main.7f6354af.chunk.js.map",
+    "runtime-main.js": "/feedback-BarCharts/static/js/runtime-main.fc57f61c.js",
+    "runtime-main.js.map": "/feedback-BarCharts/static/js/runtime-main.fc57f61c.js.map",
+    "static/js/2.970e6be1.chunk.js": "/feedback-BarCharts/static/js/2.970e6be1.chunk.js",
+    "static/js/2.970e6be1.chunk.js.map": "/feedback-BarCharts/static/js/2.970e6be1.chunk.js.map",
+    "static/js/3.94b05e75.chunk.js": "/feedback-BarCharts/static/js/3.94b05e75.chunk.js",
+    "static/js/3.94b05e75.chunk.js.map": "/feedback-BarCharts/static/js/3.94b05e75.chunk.js.map",
+    "index.html": "/feedback-BarCharts/index.html",
+    "static/css/main.2d13fed8.chunk.css.map": "/feedback-BarCharts/static/css/main.2d13fed8.chunk.css.map",
+    "static/js/2.970e6be1.chunk.js.LICENSE.txt": "/feedback-BarCharts/static/js/2.970e6be1.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.fc57f61c.js",
+    "static/js/2.970e6be1.chunk.js",
+    "static/css/main.2d13fed8.chunk.css",
+    "static/js/main.7f6354af.chunk.js"
+  ]
+}
