@@ -7,13 +7,11 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
-import { getAverage, dateFormat, requestOptions, arraySplit, getDates } from './utils';
+import { getAverage, dateFormat, requestOptions, getDates } from './utils';
 import BarChart from './components/bar-chart/bar-chart.component';
-import { QuestionTest } from './question';
-import { ReviewsTest } from './Reviews';
-import { size } from 'lodash';
 
-function useWindowSize() {
+//=========================================== Get the Size of Screen (component) ===========================================//
+const  useWindowSize =() => {
   const [size, setSize] = useState(0);
   useLayoutEffect(() => {
     function updateSize() {
@@ -23,13 +21,13 @@ function useWindowSize() {
     updateSize();
     return () => window.removeEventListener('resize', updateSize);
   }, []);
-  console.log("sizssssssssssssssssssse", size)
+  // console.log("size", size)
     return size
 }
-
+//=========================================== Get the Size of Screen (component) ===========================================//
 
 //=========================================== start date Picker ===========================================//
-const App = (props) => {
+const App = () => {
   const [selectedDateOne, setSelectedDateOne] = useState(new Date('2019-08-01T21:11:54'));
   const [selectedDateTwo, setSelectedDateTwo] = useState(new Date('2019-09-01T21:11:54'));
   const [dateFrom, setDateFrom] = useState(dateFormat(selectedDateOne));
@@ -51,19 +49,21 @@ const App = (props) => {
     certainAverageOfTime("Four", 4);
   };
   //=========================================== end date Picker ===========================================//
+  //=========================================== show 10 results on large screen, 6 results at mediem, 4 in results in small ===========================================//
   const width = useWindowSize();
-
+  
   let value;
   if ( width < 768 ) {
-      value = 4 
+    value = 4 
   } else if (width < 1400) {
-      value = 6
+    value = 6
   } else if ( 1401 < width ) {
     value = 10
   } else {
     value = 0
   }
-  console.log(value)
+  // console.log(value) 
+  //=========================================== show 10 results on large screen, 6 results at mediem, 4 in results in small ===========================================//
 
   const [Reviews, setReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
@@ -75,7 +75,7 @@ const App = (props) => {
   //===========================================**************************** start Requests ************************ ===========================================//
   useEffect(() => {
 
-    // ******************************************************* GET Questions *****************************//
+    // ******************************************************* start GET Questions *****************************//
     fetch('https://staging.mymelior.com/v1/questions', requestOptions)
     .then(response => response.json())
     .then(
@@ -83,15 +83,14 @@ const App = (props) => {
         // console.log('Questions(ar & en):', data);
         //choose english version from questions
         const enQuestion = data.length ? data[data.findIndex(el => el.lang === "en")].questions : [] ;
-        //  console.log('enQuestions:',Questions)
-        // setQuestions(enQuestion);
-        setQuestions(QuestionTest[0].questions);
+        // console.log('enQuestions:',Questions) 
+        setQuestions(enQuestion);
       }
     )
     .catch( error => console.log(error));
-    // ******************************************************* GET Questions *****************************//
+    // *******************************************************end GET Questions *****************************//
 
-    // ******************************************************* GET Reviews *****************************//
+    // ******************************************************* start GET Reviews *****************************//
     fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
     .then(response => response.json())
     .then(
@@ -102,7 +101,7 @@ const App = (props) => {
       }
     )
     .catch( error => console.log(error));
-    // ******************************************************* GET Reviews *****************************//
+    // ******************************************************* end GET Reviews *****************************//
 
   }, [dateFrom,dateTo]);
 
@@ -111,13 +110,9 @@ const App = (props) => {
 
   
   // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
-  // const howManyValues = () => {
-    
-  // }
-  // howManyValues()
 
   const duration = getDates(selectedDateOne,selectedDateTwo, value);
-  console.log("duration:", duration)
+  // console.log("duration:", duration)
   const certainAverageOfTime = (questionString, questionNumber) => {
     let average = [];
     let startDates = [];
@@ -130,8 +125,7 @@ const App = (props) => {
     .then(
       data => {
         // console.log("result number: ", i)
-        // const Reviews = data.line_chart_data ? data.line_chart_data : [] ; 
-        const Reviews = ReviewsTest;
+        const Reviews = data.line_chart_data ? data.line_chart_data : [] ; 
         const answers = Reviews.map(el=> el.answers);
         const questionAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === questionNumber) ]);
         // console.log("question", questionAnswers)
@@ -147,6 +141,7 @@ const App = (props) => {
     setDatesQuestion(startDates);
   }
   
+  //                       arrays To Bar Chart                                //
   const QuestionTwoAverageArr = QuestionTwoAverage.sort(function(a, b) { 
     return a.order - b.order 
   }).map(el => el.average)
@@ -161,11 +156,12 @@ const App = (props) => {
     return a.order - b.order 
   }).map(el => el.datesFrom)
   console.log("DatesQuestionArr", DatesQuestionArr)
-
-
-  console.log("QuestionTwoAverage", QuestionTwoAverage)
-  console.log("QuestionFourAverage", QuestionFourAverage)
-  console.log("DatesQuestion", DatesQuestion)
+  
+  //                  logs arrays
+  // console.log("QuestionTwoAverage", QuestionTwoAverage)
+  // console.log("QuestionFourAverage", QuestionFourAverage)
+  // console.log("DatesQuestion", DatesQuestion)
+  //                       arrays To Bar Chart                                //
 
   // ******************************************************* End Solution one of Getting Average to each certain amount of time *****************************//
 
@@ -215,16 +211,17 @@ const App = (props) => {
     
     return (
       <div className="App">
-          <span>Window size: {width} </span>;
+          <span>Window size: {width} </span>
          <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid container justifyContent="space-around">
               <KeyboardDatePicker
                 disableToolbar
+                InputProps={{ readOnly: true }}
                 variant="inline"
                 format="MM/dd/yyyy"
                 margin="normal"
                 id="date-picker-inline"
-                label="Date picker inline"
+                label="Start Date"
                 value={selectedDateOne}
                 onChange={handleDateChange}
                 KeyboardButtonProps={{
@@ -233,10 +230,11 @@ const App = (props) => {
               />
               <KeyboardDatePicker
                 disableToolbar
+                InputProps={{ readOnly: true }}
                 variant="inline"
                 margin="normal"
                 id="date-picker-dialog-1"
-                label="Date picker dialog"
+                label="End Date"
                 format="MM/dd/yyyy"
                 value={selectedDateTwo}
                 onChange={handleDateChangeTwo}
