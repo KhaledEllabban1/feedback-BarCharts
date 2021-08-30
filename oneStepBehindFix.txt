@@ -1,0 +1,36 @@
+https://github.com/KhaledEllabban1/feedback-BarCharts.git
+git@github.com:KhaledEllabban1/feedback-BarCharts.git
+
+https://github.com/KhaledEllabban1/feedback-BarCharts/tree/master
+
+const certainAverageOfTime = (questionString, questionNumber) => {
+    let average = [];
+    let startDates = [];
+    console.log("selectedDateOne",selectedDateOne)
+    console.log("selectedDateTwo", selectedDateTwo) 
+    for (let i = 0; i < value ; i++) {
+      const duration = getDates(selectedDateOne,selectedDateTwo, value);
+      let datesFrom = duration[i][0]
+      let datesTo   = duration[i][duration[i].length - 1]
+      // console.log(datesFrom);console.log(datesTo)
+    fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${datesFrom}&date_to=${datesTo}`, requestOptions)
+    .then(response => response.json())
+    .then(
+      data => {
+        // console.log("result number: ", i)
+        const Reviews = data.line_chart_data ? data.line_chart_data : [] ; 
+        console.log("Reviews", Reviews) 
+        const answers = Reviews.map(el=> el.answers);
+        const questionAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === questionNumber) ]);
+        // console.log("question", questionAnswers)
+        const questionMeaning =  Questions.filter(question => question.id === questionNumber);
+        let ave = getAverage(questionMeaning, questionAnswers );
+        average.push({order : i, average: ave});
+        startDates.push({order : i, datesFrom: datesFrom});
+        }
+      )
+      .catch( error => console.log(error));
+    }
+    eval(`setQuestion${questionString}Average`)(average) ;
+    setDatesQuestion(startDates);
+  }

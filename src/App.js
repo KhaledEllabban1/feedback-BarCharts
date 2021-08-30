@@ -37,16 +37,10 @@ const App = () => {
     setSelectedDateOne(date);
     const dateFormatOne = dateFormat(date)
     setDateFrom(dateFormatOne);
-    // console.log("dateFormatOne", dateFormatOne);
-    certainAverageOfTime("Two", 2);
-    certainAverageOfTime("Four", 4);
   };
   const handleDateChangeTwo = (date) => {
     setSelectedDateTwo(date);
     setDateTo(dateFormat(date));
-    // console.log("dateFormatTwo", dateFormatTwo);
-    certainAverageOfTime("Two", 2);
-    certainAverageOfTime("Four", 4);
   };
   //=========================================== end date Picker ===========================================//
   //=========================================== show 10 results on large screen, 6 results at mediem, 4 in results in small ===========================================//
@@ -54,7 +48,7 @@ const App = () => {
   
   let value;
   if ( width < 768 ) {
-    value = 4 
+    value = 10 
   } else if (width < 1400) {
     value = 6
   } else if ( 1401 < width ) {
@@ -62,11 +56,12 @@ const App = () => {
   } else {
     value = 0
   }
-  // console.log(value) 
+  console.log(value) 
   //=========================================== show 10 results on large screen, 6 results at mediem, 4 in results in small ===========================================//
 
-  const [Reviews, setReviews] = useState([]);
+  const [TotalReviews, setTotalReviews] = useState([]);
   const [Questions, setQuestions] = useState([]);
+  const [allReviews, setAllReviews] = useState([]);
   const [QuestionTwoAverage, setQuestionTwoAverage ] = useState([]);
   const [QuestionFourAverage, setQuestionFourAverage] = useState([]);
   const [DatesQuestion, setDatesQuestion] = useState([]);
@@ -90,30 +85,22 @@ const App = () => {
     .catch( error => console.log(error));
     // *******************************************************end GET Questions *****************************//
 
-    // ******************************************************* start GET Reviews *****************************//
+    // ******************************************************* start GET Total Reviews *****************************//
     fetch(`https://staging.mymelior.com/v1/branches/1/progress?date_from=${dateFrom}&date_to=${dateTo}`, requestOptions)
     .then(response => response.json())
     .then(
       data => {
-
-        setReviews(data.line_chart_data ? data.line_chart_data : []);
+        setTotalReviews(data.line_chart_data ? data.line_chart_data : []);
         // console.log('Reviews :', data.line_chart_data);
       }
     )
     .catch( error => console.log(error));
-    // ******************************************************* end GET Reviews *****************************//
-  }, [dateFrom,dateTo]);
+    // ******************************************************* end GET Total Reviews  **********************************//
 
-  //===========================================**************************** end Requests ************************ ===========================================//
-
-
-  
-  // ******************************************************* Start Solution one of Getting Average to each certain amount of time ***************************//
-
-  // console.log("duration:", duration)
-  const certainAverageOfTime = (questionString = "two", questionNumber = 2) => {
-    let average = [];
+    // ******************************************************* end GET Reviews In Duration *****************************//
+    let allReviewsVar = [];
     let startDates = [];
+    // console.log("selectedDateOne",selectedDateOne);console.log("selectedDateTwo", selectedDateTwo) 
     for (let i = 0; i < value ; i++) {
       const duration = getDates(selectedDateOne,selectedDateTwo, value);
       let datesFrom = duration[i][0]
@@ -123,58 +110,92 @@ const App = () => {
     .then(response => response.json())
     .then(
       data => {
-        // console.log("result number: ", i)
         const Reviews = data.line_chart_data ? data.line_chart_data : [] ; 
-        const answers = Reviews.map(el=> el.answers);
-        const questionAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === questionNumber) ]);
-        // console.log("question", questionAnswers)
-        const questionMeaning =  Questions.filter(question => question.id === questionNumber);
-        let ave = getAverage(questionMeaning, questionAnswers );
-        average.push({order : i, average: ave});
+        allReviewsVar.push({order : i, rev: Reviews});
         startDates.push({order : i, datesFrom: datesFrom});
         }
       )
       .catch( error => console.log(error));
     }
-    eval(`setQuestion${questionString}Average`)(average) ;
+    console.log("Revvvvvvvvvvvvvvvvvvvvvvv",allReviewsVar)
+    setAllReviews(allReviewsVar)
     setDatesQuestion(startDates);
-  }
-  
-  
-  //                       arrays To Bar Chart                                //
-  const QuestionTwoAverageArr = QuestionTwoAverage.sort(function(a, b) { 
+
+    // ******************************************************* end GET Reviews In Duration *****************************//
+  }, [dateFrom,dateTo,selectedDateOne, selectedDateTwo]);
+
+  //===========================================**************************** end Requests ************************ ===========================================//
+
+  //  ================================ start Get Reviews(Answers) of Question 2 & 4 (Average through the Duration) ======================================//
+  const allReviewsArr =  allReviews.sort(function(a, b) { 
     return a.order - b.order 
-  }).map(el => el.average)
-  console.log("QuestionTwoAverageArr", QuestionTwoAverageArr)
-  
-  const QuestionFourAverageArr = QuestionFourAverage.sort(function(a, b) { 
-    return a.order - b.order 
-  }).map(el => el.average)
-  console.log("QuestionFourAverageArr", QuestionFourAverageArr)
+  }).map(el => el.rev)
+  console.log("allReviewsArrrrrrrrrrrrrrr",allReviewsArr)
   
   const DatesQuestionArr = DatesQuestion.sort(function(a, b) { 
     return a.order - b.order 
   }).map(el => el.datesFrom)
   console.log("DatesQuestionArr", DatesQuestionArr)
-  
-  //                  logs arrays
-  // console.log("QuestionTwoAverage", QuestionTwoAverage)
-  // console.log("QuestionFourAverage", QuestionFourAverage)
-  // console.log("DatesQuestion", DatesQuestion)
-  //                       arrays To Bar Chart                                //
 
-  // ******************************************************* End Solution one of Getting Average to each certain amount of time *****************************//
+  let ave2 = [];
+  let ave4 = [];
+  if( Questions.length > 0 && allReviews.length > 0) {
+    // Get Questions objects
+    const questionTwoMeaning = Questions.filter(question => question.id === 2);
+    const questionFourMeaning = Questions.filter(question => question.id === 4);
+    // console.log("questionTwoMeaning", questionTwoMeaning)
+    // console.log("questionFourMeaning", questionFourMeaning)
 
+    for (let i = 0; i < allReviewsArr.length; i++) {
+      const answers = allReviewsArr[i].map(el=> el.answers);
+      const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
+      // console.log("AnswersTwoInDurrrrrrrrrr", questionTwoAnswers);
+      const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
+      // console.log("AnswersFourInDurrrrrrrrrrrr", questionFourAnswers); 
+      
+      //*******************attach date**************************************//
+      const dateOfReview = TotalReviews.map(el=> el.submitted_at);
+      const questionTwoAnswersWithTime = () => {     
+        for(let i=0; i < answers.length; i++){
+          questionTwoAnswers[i].time = dateOfReview[i]
+        }
+      }
+      questionTwoAnswersWithTime();
+      
+      const questionFourAnswersWithTime = () => {     
+        for(let i=0; i < answers.length; i++){
+          questionFourAnswers[i].time = dateOfReview[i]
+        }
+      }
+      questionFourAnswersWithTime();
+      //*******************attach date**************************************//
+      //  ================================ start Fun to CalCulate the Average ================================//
+
+      const AverageOfTwo = getAverage(questionTwoMeaning, questionTwoAnswers );
+      ave2.push(AverageOfTwo);
+      const AverageOfFour = getAverage(questionFourMeaning, questionFourAnswers);
+      ave4.push(AverageOfFour);
+
+
+      //  ================================ end Fun to CalCulate the Average ================================//
+
+    }
+    console.log(ave2)
+    console.log(ave4)
+    
+  }
+
+  //  ================================ end   Get Reviews(Answers) of Question 2 & 4 (Average through the Duration) ======================================//
   //  ================================ start Get Reviews(Answers) of Question 2 & 4 (Total Average through the Duration) ================================//
   
-  if( Questions.length > 0 && Reviews.length > 0) {
-    const answers = Reviews.map(el=> el.answers);
+  if( Questions.length > 0 && TotalReviews.length > 0) {
+    const answers = TotalReviews.map(el=> el.answers);
     const questionTwoAnswers  = answers.map(answer => answer[ answer.findIndex(el => el.question === 2) ]);
     console.log("questionTwoAnswers", questionTwoAnswers);
     const questionFourAnswers = answers.map(answer => answer[ answer.findIndex(el => el.question === 4) ]);
     console.log("questionFourAnswers", questionFourAnswers);
     
-     const dateOfReview = Reviews.map(el=> el.submitted_at);
+     const dateOfReview = TotalReviews.map(el=> el.submitted_at);
 
      const questionTwoAnswersWithTime = () => {     
         for(let i=0; i < answers.length; i++){
@@ -190,7 +211,6 @@ const App = () => {
       }
       questionFourAnswersWithTime();
 
-    //  ================================ end Get Reviews(Answers) of Question 2 & 4 (Total Average through the Duration) ================================//
 
     // Get Questions objects
     const questionTwoMeaning = Questions.filter(question => question.id === 2);
@@ -207,6 +227,8 @@ const App = () => {
     
     
     //  ================================ end Fun to CalCulate the Average ================================//
+    //  ================================ end Get Reviews(Answers) of Question 2 & 4 (Total Average through the Duration) ================================//
+
   }
     
     return (
@@ -245,7 +267,7 @@ const App = () => {
               
             </Grid>
             <Grid>
-              <BarChart QuestionTwo = {QuestionTwoAverageArr} QuestionFour = {QuestionFourAverageArr} Dates = {DatesQuestionArr}  />
+              <BarChart QuestionTwo = {ave2} QuestionFour = {ave4} Dates = {DatesQuestionArr}  />
             </Grid>
           </MuiPickersUtilsProvider>
       </div>

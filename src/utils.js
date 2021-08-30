@@ -80,8 +80,8 @@ export function getDates(startDate, stopDate, value) {
         dateArray.push(date);
         currentDate = currentDate.addDays(1);
     }
+    console.log(dateArray)
     const reqDate = arraySplit(dateArray, (Math.round(dateArray.length / value)))
+    console.log(reqDate)
     return reqDate;
 }
-
-//=========================================== getDates Fun  ===========================================//
